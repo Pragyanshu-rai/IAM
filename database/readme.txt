@@ -1,0 +1,1 @@
+This directory contains the database structure and all the database scripts

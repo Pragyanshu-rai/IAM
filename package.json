@@ -1,0 +1,38 @@
+{
+  "name": "iam",
+  "version": "1.0.0",
+  "description": "This is a simple iam app used for user authentication.",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start-watch": "nodemon server.js"
+  },
+  "keywords": [
+    "iam",
+    "node",
+    "js",
+    "login",
+    "admin",
+    "register",
+    "authentication",
+    "user",
+    "token",
+    "jwt",
+    "authorization",
+    "security"
+  ],
+  "author": "Pragyanshu Rai",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "express": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.3",
+    "nodemon": "^2.0.15"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.0"
+  }
+}

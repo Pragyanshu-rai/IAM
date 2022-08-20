@@ -1,0 +1,5 @@
+Run the files in this sequence
+
+1- bootstrap.sql
+2- create-table.sql
+3- populate-database.sql
