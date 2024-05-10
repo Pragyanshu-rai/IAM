@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS User (
   email VARCHAR(80) NOT NULL UNIQUE,
   mobile VARCHAR(15) NOT NULL UNIQUE,
   password_hashed VARCHAR(300) NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT 0,
   FOREIGN KEY (gender) REFERENCES Gender (id)
 );
 

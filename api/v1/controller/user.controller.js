@@ -5,10 +5,9 @@ const MultipleUserModel = require('../models/multiple-user.model');
 const setError = require('../utils/errors/setError');
 
 const LOC = "CONTROLLER";
-const EDITOR = ['Admin', 'Staff'];
 const VERIFIER = ['Admin', 'System'];
 const SECRET_KEY = process.env.JWT_KEY;
-const DEBUG = parseInt(process.env.IN_DEV);
+const EDITOR = ['Admin', 'Staff', 'System'];
 const ERROR_MESSAGE = "Internal Server Error";
 
 /**
@@ -96,7 +95,7 @@ exports.updateUser = async (req, res, next) => {
   try {
     req.body.id = req.userData.data.id;
     let actor = (req.userData.data.role === 'System') ? 'App' : 'User';
-    const permissibleRoles = new Array['System', 'Staff', 'Admin'];
+    const permissibleRoles = new Array('System', 'Staff', 'Admin');
 
     if (permissibleRoles.includes(req.body.role)) {
       const authorizedBy = {
@@ -154,25 +153,27 @@ exports.updatePassword = async (req, res, next) => {
 exports.getMultipleUsers = async (req, res, next) => {
 
   try {
-    let users;
-    req.body.id = req.headers.permissible;
+    let users = new Array();
     const authorizedBy = {
-      id: req.body.id
+      id: req.userData.data.id
     };
-    await UserModel.roleInOrError(authorizedBy, VERIFIER);
 
-    if (!req.query.ids) {
+    if (!req.query.ids && !req.payload) {
       const error = new Error("Query Param 'ids' missing!");
       error.status = 400;
       throw error;
     }
 
-    if (req.query.ids.length < 1) {
-      users = [];
-    } else {
+    if (req.payload?.data && (req.userData.data.id !== req.payload.data.id)) {
+      await UserModel.roleInOrError(authorizedBy, VERIFIER);
+    }
+
+    if (req.payload.data.id) {
+      users = await UserModel.findOne(req.payload.data.id);
+    } else if (req.query.ids?.length >= 1) {
       const userIds = req.query.ids.split(',');
-      const MultipleUserModel = new MultipleUserModel(req.body, userIds);
-      users = await MultipleUserModel.getMultipleUsers();
+      const multipleUserModel = new MultipleUserModel(req.body, userIds);
+      users = await multipleUserModel.getMultipleUsers();
     }
     return res.status(200).json(users);
 
@@ -191,27 +192,17 @@ exports.getMultipleUsers = async (req, res, next) => {
 exports.deleteUser = async (req, res, next) => {
 
   try {
+    let response;
     const userIds = req.query.ids;
     req.body.id = req.userData.data.id;
     req.body.role = req.userData.data.role;
     let actor = (req.userData.data.role === 'System') ? 'App' : 'User';
-    let response;
-
-    if (req.body.role !== 'User') {
-      let id;
-
-      if (req.body.role !== 'System') {
-        id = req.headers.permissible;
-      } else {
-        id = req.body.id;
-      }
-      const authorizedBy = {
-        id: id
-      };
-      await UserModel.roleInOrError(authorizedBy, EDITOR);
-    }
+    const authorizedBy = {
+      id: req.body.id
+    };
 
     if (userIds) {
+      await UserModel.roleInOrError(authorizedBy, EDITOR);
 
       if (userIds.length < 1) {
         throw setError(new Error(), LOC, 400, "Cannot delete users, Ids not provided!");

@@ -108,7 +108,7 @@ class UserModel {
 
       if (password === undefined) {
         userUpdateQuery = this.user.createUserUpdateQuery();
-      } else {
+      } else if (this.user.role === undefined) {
         const passwordHashed = await bcrypt.hash(password, 12);
         userUpdateQuery = this.user.createUserUpdateQuery(passwordHashed);
       }

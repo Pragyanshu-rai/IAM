@@ -7,9 +7,9 @@
  * @param {*} message 
  * @returns 
  */
-module.exports = (error, loc, statusCode, message) => {
-  error.loc = error.loc || LOC;
-  error.status = error.status || 500;
-  error.message = (error.message !== undefined) ? error.message : ERROR_MESSAGE;
+module.exports = (error, LOC, statusCode, message) => {
+  error.loc = error.loc || LOC || "SERVER";
+  error.status = error.status || statusCode || 500;
+  error.message = error.message || message || "Internal Server Error";
   return error;
 };

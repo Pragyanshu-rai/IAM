@@ -127,11 +127,11 @@ class DBClass {
       }
       let index = 0;
 
+      const nonUpdateKeys = new Array('role', 'DBClass', 'id');
       for (const key in user) {
-        const nonUpdateKeys = new Array('role', 'DBClass', 'id');
 
-        if (user.key !== undefined && (!nonUpdateKeys.includes(key))) {
-          if (user.key === null) {
+        if (user[key] !== undefined && (!nonUpdateKeys.includes(key))) {
+          if (user[key] === null) {
             userUpdateQuery = userUpdateQuery + ((index > 0) ? ', ' : '') + key + " = " + user[key];
           } else {
             userUpdateQuery = userUpdateQuery + ((index > 0) ? ', ' : '') + key + " = '" + user[key] + "'";
@@ -217,12 +217,14 @@ class DBClass {
    */
   static createFetchUserByIdQuery(userId) {
     const fetchUserById = `
-    SELECT u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.email, u.mobile, u.role_name
+    SELECT u.first_name, u.middle_name, u.last_name, u.date_of_birth, g.gender, u.email, u.mobile, r.role_name
     FROM User AS u
     INNER JOIN UserRoles AS ur
     on u.id = ur.user_id
     INNER JOIN Roles AS r
     ON ur.role_id = r.id
+    INNER JOIN Gender as g
+    ON g.id = u.gender
     WHERE u.id = ${userId}
     ;
     `;
