@@ -5,6 +5,13 @@ const LOC = "MIDDLEWARE-Data Mask";
 
 module.exports = class {
 
+  /**
+   * This function throws an error if the target object does not map to the
+   * mask.
+   * @param {*} target 
+   * @param {*} mask 
+   * @param {*} next 
+   */
   static dataMask = (target, mask, next) => {
 
     try {
@@ -32,6 +39,13 @@ module.exports = class {
     }
   };
 
+  /**
+   * This middleware function validates the object body against the 
+   * registration mask.
+   * @param {*} req 
+   * @param {*} res 
+   * @param {*} next 
+   */
   static registration = (req, res, next) => {
     const mask = {
       "first_name":"string",
@@ -44,6 +58,12 @@ module.exports = class {
     this.dataMask(req.body, mask, next);
   };
 
+  /**
+   * This middleware function validates the req body against the login mask.
+   * @param {*} req 
+   * @param {*} res 
+   * @param {*} next 
+   */
   static login = (req, res, next) => {
     const mask = {
       "email":"string",
