@@ -7,7 +7,7 @@
  * @param {*} message 
  * @returns 
  */
-module.exports = (error, LOC, statusCode, message) => {
+export default (error, LOC, statusCode, message) => {
   error.loc = error.loc || LOC || "SERVER";
   error.status = error.status || statusCode || 500;
   error.message = error.message || message || "Internal Server Error";

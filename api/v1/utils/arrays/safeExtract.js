@@ -3,7 +3,7 @@
  * @param {*} array
  * @returns
  */
-module.exports = (array) => {
+export default (array) => {
   let val = array;
 
   if (Array.isArray(array)) {

@@ -1,10 +1,10 @@
-const mysql = require("mysql2");
+import { createPool } from "mysql2";
 
 const DEBUG = parseInt(process.env.IN_DEV);
 
-console.log(process.env.IAM_DB_NAME);
+console.log(process.env.DB_NAME);
 
-const pool = mysql.createPool({
+const pool = createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   connectionLimit: process.env.DB_CONNECTION_LIMIT,
@@ -27,4 +27,4 @@ pool.getConnection((error, connection) => {
 });
 
 
-module.exports = pool.promise();
+export default pool.promise();

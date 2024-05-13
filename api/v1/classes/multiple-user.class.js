@@ -1,4 +1,4 @@
-const DBClass = require('../classes/multiple-user-mysql-db.class');
+import DBClass from '../classes/multiple-user-mysql-db.class';
 
 class MultipleUserClass {
 
@@ -27,4 +27,4 @@ class MultipleUserClass {
   }
 }
 
-module.exports = MultipleUserClass;
+export default MultipleUserClass;

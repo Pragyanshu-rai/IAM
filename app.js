@@ -1,17 +1,17 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const logger = require("morgan");
+import express from "express";
+import { urlencoded, json } from "body-parser";
+import logger from "morgan";
 
-const userRoutes = require("./api/v1/routes/user.routes");
-const logError = require("./api/v1/utils/errors/logError");
+import userRoutes from "./api/v1/routes/user.routes";
+import logError from "./api/v1/utils/errors/logError";
 
 const LOC = "APP";
 const app = express();
 const DEBUG = parseInt(process.env.IN_DEV);
 const logMode = DEBUG ? "dev" : "common";
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(urlencoded({ extended: false }));
+app.use(json());
 app.use(logger(logMode));
 
 //  application url paths
@@ -39,4 +39,4 @@ app.use((error, req, res, next) => {
   }
 });
 
-module.exports = app;
+export default app;

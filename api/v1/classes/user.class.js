@@ -1,4 +1,4 @@
-const DBClass = require("../classes/user-mysql-db.class");
+import DBClass from "../classes/user-mysql-db.class";
 
 class UserClass {
   constructor(user) {
@@ -125,4 +125,4 @@ class UserClass {
   }
 }
 
-module.exports = UserClass;
+export default UserClass;

@@ -3,8 +3,8 @@ const express = require("express");
 const userController = require("../controller/user.controller");
 
 // middleware import
-const Security = require('../middleware/Security');
-const DataMask = require('../middleware/DataMask');
+const Security = require('../middleware/Security').default;
+const DataMask = require('../middleware/DataMask').default;
 
 const userRoutes = express.Router();
 const LOC = "SERVER";

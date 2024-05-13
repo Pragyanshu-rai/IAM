@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt');
+import { hash, compare } from 'bcrypt';
 
-const db = require('../../../config/db');
-const UserClass = require('../classes/user.class');
-const safeExtract = require('../utils/arrays/safeExtract');
+import { execute } from '../../../config/db';
+import UserClass, { createFetchUserByIdQuery, createFetchUserByEmailQuery, createFetchUserAttributeByEmailQuery, createUserSystemRegistrationQuery } from '../classes/user.class';
+import safeExtract from '../utils/arrays/safeExtract';
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "DB MODEL";
@@ -32,11 +32,11 @@ class UserModel {
         error.status = 409;
         throw error;
       }
-      const passwordHashed = await bcrypt.hash(password, 12);
+      const passwordHashed = await hash(password, 12);
       const registerUser = this.user.createRegistrationQuery(passwordHashed);
-      const [users, _] = await db.execute(registerUser);
+      const [users, _] = await execute(registerUser);
       const roleRegistration = this.user.createRoleRegistrationQuery();
-      await db.execute(roleRegistration);
+      await execute(roleRegistration);
 
     } catch (error) {
       error.loc = error.loc || LOC;
@@ -62,18 +62,18 @@ class UserModel {
 
     try {
       const validateUserQuery = this.user.createLoginQuery();
-      const [users, _] = await db.execute(validateUserQuery);
+      const [users, _] = await execute(validateUserQuery);
       const user = safeExtract(users);
 
       if (user === undefined) {
         throw new Error();
       }
       const passwordHashed = user.password_hashed;
-      user["authStatus"] = await bcrypt.compare(password, passwordHashed);
+      user["authStatus"] = await compare(password, passwordHashed);
       delete user.password_hashed;
       this.user.id = user.id;
       const fetchUserRole = this.user.createFetchUserRoleQuery();
-      const [roles, __] = await db.execute(fetchUserRole);
+      const [roles, __] = await execute(fetchUserRole);
       const role = safeExtract(roles);
       user["role"] = role.role_name;
 
@@ -109,14 +109,14 @@ class UserModel {
       if (password === undefined) {
         userUpdateQuery = this.user.createUserUpdateQuery();
       } else if (this.user.role === undefined) {
-        const passwordHashed = await bcrypt.hash(password, 12);
+        const passwordHashed = await hash(password, 12);
         userUpdateQuery = this.user.createUserUpdateQuery(passwordHashed);
       }
-      await db.execute(userUpdateQuery);
+      await execute(userUpdateQuery);
 
       if (this.user.role) {
         const roleUpdateQuery = this.user.createRoleUpdateQuery();
-        await db.execute(roleUpdateQuery);
+        await execute(roleUpdateQuery);
       }
 
     } catch (error) {
@@ -140,7 +140,7 @@ class UserModel {
 
     try {
       const deleteUser = this.user.createDeleteUserQuery();
-      await db.execute(deleteUser);
+      await execute(deleteUser);
 
     } catch (error) {
       error.loc = error.loc || LOC;
@@ -162,7 +162,7 @@ class UserModel {
    * @returns 
    */
   static async findOne(userId) {
-    const findQuery = UserClass.createFetchUserByIdQuery(userId);
+    const findQuery = createFetchUserByIdQuery(userId);
     const [users, _] = await UserModel.safeExecute(findQuery);
     const user = safeExtract(users);
     return user;
@@ -174,7 +174,7 @@ class UserModel {
    * @returns 
    */
   static async findByEmail(email) {
-    const findQuery = UserClass.createFetchUserByEmailQuery(email);
+    const findQuery = createFetchUserByEmailQuery(email);
     console.log("Query", findQuery);
     const [users, _] = await UserModel.safeExecute(findQuery);
     const user = safeExtract(users);
@@ -190,7 +190,7 @@ class UserModel {
    * @returns 
    */
   static async getAttributeByEmail(email, attribute = 'id') {
-    const findQuery = UserClass.createFetchUserAttributeByEmailQuery(email, attribute);
+    const findQuery = createFetchUserAttributeByEmailQuery(email, attribute);
     const [users, _] = await UserModel.safeExecute(findQuery);
     const user = safeExtract(users);
     return user;
@@ -203,7 +203,7 @@ class UserModel {
    * @param {*} adminId 
    */
   static async addUserSystemEntry(email, adminId) {
-    const addQuery = UserClass.createUserSystemRegistrationQuery(email, adminId);
+    const addQuery = createUserSystemRegistrationQuery(email, adminId);
     await UserModel.safeExecute(addQuery);
   }
 
@@ -216,7 +216,7 @@ class UserModel {
   static async safeExecute(executeQuery) {
 
     try {
-      const [result, _] = await db.execute(executeQuery);
+      const [result, _] = await execute(executeQuery);
       return result;
 
     } catch (error) {
@@ -243,7 +243,7 @@ class UserModel {
   static async roleIs(user, targetRole) {
     const newUser = new UserClass(user);
     const getUserRole = newUser.createFetchUserRoleQuery();
-    const [userRoles, _] = await db.execute(getUserRole);
+    const [userRoles, _] = await execute(getUserRole);
     const userRole = safeExtract(userRoles);
     return (userRole.role_name === targetRole)
   }
@@ -288,7 +288,7 @@ class UserModel {
   static async roleIn(user, targetRoles) {
     const newUser = new UserClass(user);
     const getUserRole = newUser.createFetchUserRoleQuery();
-    const [userRoles, _] = await db.execute(getUserRole);
+    const [userRoles, _] = await execute(getUserRole);
     const userRole = safeExtract(userRoles);
     return targetRoles.includes(userRole.role_name);
   }
@@ -324,4 +324,4 @@ class UserModel {
   }
 }
 
-module.exports = UserModel;
+export default UserModel;
