@@ -1,12 +1,12 @@
-import { verify } from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
-import logError from "../utils/errors/logError";
+const logError = require("../utils/errors/logError");
 
 const SECRET_KEY = process.env.JWT_KEY;
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "MIDDLEWARE-Security";
 
-export default class {
+module.exports = class {
 
   /**
  * This middleware is used to verify if the request have proper
@@ -18,7 +18,7 @@ export default class {
   static authenticate = (req, res, next) => {
     try {
       const jwtToken = req.headers.authorization.split(" ")[1];
-      const tokenData = verify(jwtToken, SECRET_KEY);
+      const tokenData = jwt.verify(jwtToken, SECRET_KEY);
       req.userData = tokenData;
 
       if (req.headers["payload-authorization"] !== undefined) {
@@ -45,7 +45,7 @@ export default class {
    */
   static extract = (jwtToken) => {
     try {
-      const tokenData = verify(jwtToken, SECRET_KEY);
+      const tokenData = jwt.verify(jwtToken, SECRET_KEY);
       return tokenData;
     } catch (error) {
       error.status = error.status || 401;

@@ -1,9 +1,9 @@
-import logError from "../utils/errors/logError";
+const logError = require("../utils/errors/logError");
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "MIDDLEWARE-Data Mask";
 
-export default class {
+module.exports = class {
 
   /**
    * This function throws an error if the target object does not map to the

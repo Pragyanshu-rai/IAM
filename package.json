@@ -1,13 +1,10 @@
 {
   "name": "iam",
-  "type": "module",
   "version": "1.0.0",
   "description": "This is a simple iam app used for user authentication.",
   "main": "server.js",
   "scripts": {
     "test": "jest",
-    "test-watch": "jest --watch --coverage",
-    "start": "node server.js",
     "start-watch": "nodemon server.js"
   },
   "keywords": [
@@ -36,8 +33,6 @@
     "nodemon": "^2.0.15"
   },
   "devDependencies": {
-    "dotenv": "^16.0.0",
-    "jest": "^29.7.0",
-    "supertest": "^7.0.0"
+    "dotenv": "^16.0.0"
   }
 }

@@ -1,1 +1,0 @@
-export const url = "/v1/user";

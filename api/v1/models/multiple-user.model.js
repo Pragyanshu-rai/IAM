@@ -1,5 +1,5 @@
-import { execute } from '../../../config/db';
-import MultipleUserClass from '../classes/multiple-user.class';
+const db = require('../../../config/db');
+const MultipleUserClass = require('../classes/multiple-user.class');
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "DB MODEL";
@@ -18,7 +18,7 @@ class MultipleUserModel {
 
     try {
       const fetchMultipleUsers = this.multipleUsers.createFetchMultipleUsersQuery();
-      const [users, _] = await execute(fetchMultipleUsers);
+      const [users, _] = await db.execute(fetchMultipleUsers);
       return users;
     } catch (error) {
       error.loc = error.loc || LOC;
@@ -40,7 +40,7 @@ class MultipleUserModel {
 
     try {
       const deleteMultipleUsers = this.multipleUsers.createDeleteMultipleUsersQuery();
-      await execute(deleteMultipleUsers);
+      await db.execute(deleteMultipleUsers);
     } catch (error) {
       error.loc = error.loc || LOC;
       error.status = 401;
@@ -55,4 +55,4 @@ class MultipleUserModel {
   }
 }
 
-export default MultipleUserModel;
+module.exports = MultipleUserModel;

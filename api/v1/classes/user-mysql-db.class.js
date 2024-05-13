@@ -268,4 +268,4 @@ class DBClass {
   }
 }
 
-export default DBClass;
+module.exports = DBClass;

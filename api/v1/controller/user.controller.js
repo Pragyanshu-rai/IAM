@@ -1,8 +1,8 @@
-import { sign } from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-import UserModel, { roleInOrError, addUserSystemEntry, findByEmail, roleIsOrError, findOne } from '../models/user.model';
-import MultipleUserModel from '../models/multiple-user.model';
-import setError from '../utils/errors/setError';
+const UserModel = require('../models/user.model');
+const MultipleUserModel = require('../models/multiple-user.model');
+const setError = require('../utils/errors/setError');
 
 const LOC = "CONTROLLER";
 const VERIFIER = ['Admin', 'System'];
@@ -17,7 +17,7 @@ const ERROR_MESSAGE = "Internal Server Error";
  * @param {*} next 
  * @returns 
  */
-export async function userSignUp(req, res, next) {
+exports.userSignUp = async (req, res, next) => {
   const password = req.body.password;
 
   try {
@@ -27,15 +27,15 @@ export async function userSignUp(req, res, next) {
     };
 
     if (req.body.role !== 'User') {
-      await roleInOrError(authorizedBy, EDITOR);
+      await UserModel.roleInOrError(authorizedBy, EDITOR);
     }
     const userModel = new UserModel(req.body);
     await userModel.register(password);
 
     if (req.body.role === 'System') {
-      await addUserSystemEntry(req.body.email, authorizedBy.id);
+      await UserModel.addUserSystemEntry(req.body.email, authorizedBy.id);
     }
-    let response = await findByEmail(userModel.user.email);
+    let response = await UserModel.findByEmail(userModel.user.email);
 
     if (response.date_of_birth) {
       response.date_of_birth = response.date_of_birth.toISOString().split('T')[0];
@@ -48,7 +48,7 @@ export async function userSignUp(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * This function will log the user in and return the auth token if the
@@ -58,13 +58,13 @@ export async function userSignUp(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function userLogin(req, res, next) {
+exports.userLogin = async (req, res, next) => {
   const password = req.body.password;
 
   try {
     const userModel = new UserModel(req.body);
     const user_data = await userModel.login(password);
-    const auth_token = sign(
+    const auth_token = jwt.sign(
       {
         email: userModel.user.email,
         data: user_data
@@ -81,7 +81,7 @@ export async function userLogin(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * This function is used to update the user details
@@ -90,7 +90,7 @@ export async function userLogin(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function updateUser(req, res, next) {
+exports.updateUser = async (req, res, next) => {
 
   try {
     req.body.id = req.userData.data.id;
@@ -101,7 +101,7 @@ export async function updateUser(req, res, next) {
       const authorizedBy = {
         id: req.headers.permissible
       };
-      await roleIsOrError(authorizedBy, 'Admin');
+      await UserModel.roleIsOrError(authorizedBy, 'Admin');
 
       if (req.body.role === 'Admin') {
         delete req.body.role;
@@ -109,7 +109,7 @@ export async function updateUser(req, res, next) {
     }
     const userModel = new UserModel(req.body);
     await userModel.update();
-    const updatedUser = await findOne(userModel.user.id);
+    const updatedUser = await UserModel.findOne(userModel.user.id);
     return res.status(200).json({
       message: `${actor} Data Update Successful!`,
       updatedUser: updatedUser
@@ -118,7 +118,7 @@ export async function updateUser(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * This function is used to update the user password
@@ -127,7 +127,7 @@ export async function updateUser(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function updatePassword(req, res, next) {
+exports.updatePassword = async (req, res, next) => {
   const password = req.body.password;
 
   try {
@@ -141,7 +141,7 @@ export async function updatePassword(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * Getting multiple users from the database
@@ -150,7 +150,7 @@ export async function updatePassword(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function getMultipleUsers(req, res, next) {
+exports.getMultipleUsers = async (req, res, next) => {
 
   try {
     let users = new Array();
@@ -165,11 +165,11 @@ export async function getMultipleUsers(req, res, next) {
     }
 
     if (req.payload?.data && (req.userData.data.id !== req.payload.data.id)) {
-      await roleInOrError(authorizedBy, VERIFIER);
+      await UserModel.roleInOrError(authorizedBy, VERIFIER);
     }
 
     if (req.payload.data.id) {
-      users = await findOne(req.payload.data.id);
+      users = await UserModel.findOne(req.payload.data.id);
     } else if (req.query.ids?.length >= 1) {
       const userIds = req.query.ids.split(',');
       const multipleUserModel = new MultipleUserModel(req.body, userIds);
@@ -180,7 +180,7 @@ export async function getMultipleUsers(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * Deleting the users from the database
@@ -189,7 +189,7 @@ export async function getMultipleUsers(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function deleteUser(req, res, next) {
+exports.deleteUser = async (req, res, next) => {
 
   try {
     let response;
@@ -202,7 +202,7 @@ export async function deleteUser(req, res, next) {
     };
 
     if (userIds) {
-      await roleInOrError(authorizedBy, EDITOR);
+      await UserModel.roleInOrError(authorizedBy, EDITOR);
 
       if (userIds.length < 1) {
         throw setError(new Error(), LOC, 400, "Cannot delete users, Ids not provided!");
@@ -211,14 +211,14 @@ export async function deleteUser(req, res, next) {
       const multipleUserModel = new MultipleUserModel(req.body, userIdArray);
       await multipleUserModel.deleteMultipleUsers();
       response = {
-        message: "Users Deletion Successful!",
+        message: "Users Deleted!",
         user_id: userIds
       };
     } else {
       const user = new UserModel(req.body);
       await user.delete();
       response = {
-        message: `${actor} Deletion Successful!`,
+        message: `${actor} Deleted!`,
         user_id: req.body.id
       };
     }
@@ -227,7 +227,7 @@ export async function deleteUser(req, res, next) {
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};
 
 /**
  * This function is used for authentication test for tokens
@@ -236,17 +236,17 @@ export async function deleteUser(req, res, next) {
  * @param {*} next 
  * @returns 
  */
-export async function testAuth(req, res, next) {
+exports.testAuth = async (req, res, next) => {
 
   try {
     req.userData.iat = new Date(req.userData.iat * 1000).toString();
     req.userData.exp = new Date(req.userData.exp * 1000).toString();
     return res.status(200).json({
-      message: "Authentication Test Successful!!",
+      message: "Authentication Test Passed!",
       data: req.userData
     });
 
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
-}
+};

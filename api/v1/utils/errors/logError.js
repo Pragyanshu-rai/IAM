@@ -2,7 +2,7 @@
  * This function is used to log the error to the console
  * @param {*} error
  */
-export default (error) => {
+module.exports = (error) => {
   const loc = error.loc || "SERVER";
   console.log(`${loc} ERROR - `, error);
   console.log(error.stack);
