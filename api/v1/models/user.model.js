@@ -108,7 +108,7 @@ class UserModel {
 
       if (password === undefined) {
         userUpdateQuery = this.user.createUserUpdateQuery();
-      } else {
+      } else if (this.user.role === undefined) {
         const passwordHashed = await bcrypt.hash(password, 12);
         userUpdateQuery = this.user.createUserUpdateQuery(passwordHashed);
       }
@@ -321,6 +321,16 @@ class UserModel {
       }
       throw error;
     }
+  }
+
+  static ifTokenExists(target, isToken = false) {
+
+    if (isToken) {
+      
+    } else {
+
+    }
+    return false;
   }
 }
 

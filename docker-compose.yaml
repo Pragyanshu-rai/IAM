@@ -1,0 +1,33 @@
+version: '3'
+services:
+  iam_db:
+    build: 
+      context: .
+      dockerfile: dbDockerFile
+      args:
+        - DB_NAME=${DB_NAME}
+        - USER_NAME=${DB_USER}
+        - PASSWORD=${DB_PASSWORD}
+    container_name: iam-db
+    ports:
+      - 3306:3306
+    env_file:
+      - .env
+    volumes:
+      - mysql-data:/iam_data/db
+    
+  iam_app:
+    depends_on:
+      - iam_db
+    build: 
+      context: .
+      dockerfile: appDockerFile
+    container_name: iam-app
+    ports:
+      - 8081:8081
+    env_file:
+      - .env
+    restart: always
+volumes:
+  mysql-data:
+    driver: local

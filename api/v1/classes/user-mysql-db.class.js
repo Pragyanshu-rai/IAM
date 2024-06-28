@@ -127,11 +127,11 @@ class DBClass {
       }
       let index = 0;
 
+      const nonUpdateKeys = new Array('role', 'DBClass', 'id');
       for (const key in user) {
-        const nonUpdateKeys = new Array('role', 'DBClass', 'id');
 
-        if (user.key !== undefined && (!nonUpdateKeys.includes(key))) {
-          if (user.key === null) {
+        if (user[key] !== undefined && (!nonUpdateKeys.includes(key))) {
+          if (user[key] === null) {
             userUpdateQuery = userUpdateQuery + ((index > 0) ? ', ' : '') + key + " = " + user[key];
           } else {
             userUpdateQuery = userUpdateQuery + ((index > 0) ? ', ' : '') + key + " = '" + user[key] + "'";
@@ -217,12 +217,14 @@ class DBClass {
    */
   static createFetchUserByIdQuery(userId) {
     const fetchUserById = `
-    SELECT u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.email, u.mobile, u.role_name
+    SELECT u.first_name, u.middle_name, u.last_name, u.date_of_birth, g.gender, u.email, u.mobile, r.role_name
     FROM User AS u
     INNER JOIN UserRoles AS ur
     on u.id = ur.user_id
     INNER JOIN Roles AS r
     ON ur.role_id = r.id
+    INNER JOIN Gender as g
+    ON g.id = u.gender
     WHERE u.id = ${userId}
     ;
     `;
@@ -263,6 +265,85 @@ class DBClass {
     ;
     `;
     return fetchUserAttributeByEmail;
+  }
+
+  /**
+   * Given the id or the token with the flag set this function returns
+   * the query to fetch the token if any exists for that id or token
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static ifTokenExists(target, isToken = false) {
+    let query;
+
+    if (isToken) {
+      query = `
+        SELECT reset_token 
+        FROM PasswordResetRequest
+        WHERE reset_token = '${target}'
+        ;
+      `;
+    } else {
+      query = `
+      SELECT reset_token
+      FROM PasswordResetRequest
+      WHERE user_id = ${target}
+      ;
+      `;
+    }
+    return query;
+  }
+
+  /**
+   * Given the userId and the token this function will return the query
+   * to save the token against that particular user
+   * @param {*} target 
+   * @param {*} token 
+   * @returns 
+   */
+  static saveRandomToken(userId, token) {
+    const saveToken = `
+    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_expiration, isValid)
+    VALUE (
+    (
+      SELECT id
+      FROM User
+      WHERE id = ${userId}
+    ),
+    ${token},
+    NOW(),
+    1
+    );
+    `;
+
+    return saveToken;
+  }
+
+  /**
+   * Given the userId or the token with the flag marked this function
+   * will return a query that will invalidate the token
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static invalidateResetToken(target, isToken = false) {
+    var invalidateToken = `
+    UPDATE PasswordResetRequest
+    SET isValid = 0
+    `;
+
+    if (isToken) {
+      invalidateToken += `
+        WHERE reset_token = '${target}';
+      `;
+    } else {
+      invalidateToken += `
+        WHERE user_id = ${target};
+      `;
+    }
+
+    return invalidateToken;
   }
 }
 
