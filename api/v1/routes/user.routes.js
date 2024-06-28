@@ -27,8 +27,7 @@ try {
     userController.updateUser
   );
   userRoutes.put(
-    '/update-password', 
-    Security.authenticate, 
+    '/update-password/:id/:forgot/:token',  
     userController.updatePassword
   );
   userRoutes.get(

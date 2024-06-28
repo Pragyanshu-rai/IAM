@@ -175,10 +175,8 @@ class UserModel {
    */
   static async findByEmail(email) {
     const findQuery = UserClass.createFetchUserByEmailQuery(email);
-    console.log("Query", findQuery);
     const [users, _] = await UserModel.safeExecute(findQuery);
     const user = safeExtract(users);
-    console.log('Check', users);
     return user;
   }
 
@@ -323,17 +321,33 @@ class UserModel {
     }
   }
 
-  static async ifTokenExistsOrError(target, isToken = false) {
-    const checkToken = UserClass.ifTokenExistsQuery();
+  /**
+   * Given the userId or the token with the flag marked this function
+   * returns the token if it exists else returns undefined
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static async ifTokenExists(target, isToken = false) {
+    const checkToken = UserClass.ifTokenExistsQuery(target, isToken);
+    const [token, _] = await db.execute(checkToken);
+    return safeExtract(token); 
   }
 
-  static async ifTokenExists(target, isToken = false) {
+  /**
+   * Given the userId or the token with the flag marked this function
+   * returns the token if it exists else throws an error
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static async ifTokenExistsOrError(target, isToken = false) {
     let checkToken;
     try {
-      checkToken = await UserModel.roleIn(user, targetRoles);
+      checkToken = await UserModel.ifTokenExists(target, isToken);
 
       if (!checkToken) {
-        const error = new Error();
+        const error = new Error("Token Does Not Exist!");
         throw error;
       }
     } catch (error) {
@@ -347,7 +361,31 @@ class UserModel {
         error.message = defaultMessage;
       }
       throw error;
+    } finally {
+      return !(checkToken);
     }
+  }
+
+  /**
+   * Given the userId and the token this function registers the 
+   * token against the user
+   * @param {*} userId 
+   * @param {*} token 
+   */
+  static async saveRandomToken(userId, token) {
+    const saveTokenQuery = UserClass.saveRandomTokenQuery(userId, token);
+    await db.execute(saveTokenQuery);
+  }
+
+  /**
+   * Given the userId or the token with the flag marked this function
+   * invalidates the token if it exists
+   * @param {*} target 
+   * @param {*} isToken 
+   */
+  static async invalidateToken(target, isToken = false) {
+    const invalidateTokenQuery = UserClass.invalidateResetTokenQuery(target, isToken);
+    await db.execute(invalidateTokenQuery);
   }
 }
 

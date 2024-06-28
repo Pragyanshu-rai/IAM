@@ -8,7 +8,8 @@ const getUserService = require("../service/getService");
 const deleteService = require("../service/deleteService");
 const signUpService = require("../service/signupService");
 const updateService = require("../service/updateService");
-const updatePasswordService = require("../service/updatePasswordService");
+const recoverService = require("../service/recoverService");
+const generateTokenService = require('../service/generateTokenService');
 
 const LOC = "CONTROLLER";
 const ERROR_MESSAGE = "Internal Server Error";
@@ -62,7 +63,7 @@ exports.updateUser = async (req, res, next) => {
 };
 
 /**
- * This function will invoke the updatePasswordService function
+ * This function will invoke the recoverService function
  * @param {*} req 
  * @param {*} res 
  * @param {*} next 
@@ -71,7 +72,22 @@ exports.updateUser = async (req, res, next) => {
 exports.updatePassword = async (req, res, next) => {
 
   try {
-    return await updatePasswordService(req, res);
+    return await recoverService(req, res);
+  } catch (error) {
+    next(setError(error, LOC, 500, ERROR_MESSAGE));
+  }
+};
+
+/**
+ * This function will invoke the generateTokenService function
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+exports.resetRequest = async (req, res, next) => {
+
+  try {
+    return await generateTokenService(req, res);
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }
