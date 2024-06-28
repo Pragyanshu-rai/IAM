@@ -323,14 +323,31 @@ class UserModel {
     }
   }
 
-  static ifTokenExists(target, isToken = false) {
+  static async ifTokenExistsOrError(target, isToken = false) {
+    const checkToken = UserClass.ifTokenExistsQuery();
+  }
 
-    if (isToken) {
-      
-    } else {
+  static async ifTokenExists(target, isToken = false) {
+    let checkToken;
+    try {
+      checkToken = await UserModel.roleIn(user, targetRoles);
 
+      if (!checkToken) {
+        const error = new Error();
+        throw error;
+      }
+    } catch (error) {
+      error.loc = error.loc || LOC;
+      error.status = error.status || 403;
+      const defaultMessage = "Permission Denied!";
+
+      if (DEBUG) {
+        error.message = (error.message !== undefined && error.message !== "") ? error.message : defaultMessage;
+      } else {
+        error.message = defaultMessage;
+      }
+      throw error;
     }
-    return false;
   }
 }
 

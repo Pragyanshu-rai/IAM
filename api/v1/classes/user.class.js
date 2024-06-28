@@ -123,6 +123,32 @@ class UserClass {
     const fetchUserAttributeByEmail = DBClass.createFetchUserAttributeByEmailQuery(email, attribute);
     return fetchUserAttributeByEmail;
   }
+
+  /**
+   * This method when invoked will return the query to fetch token
+   * if it exists
+   * @param {*} UserId 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static ifTokenExistsQuery(target, isToken = false) {
+    return DBClass.ifTokenExistsQuery(target, isToken);
+  }
+
+  /**
+   * This method when invoked will return the query to save the
+   * token against the user
+   * @param {*} userId 
+   * @param {*} token 
+   * @returns 
+   */
+  static saveRandomTokenQuery(userId, token) {
+    return DBClass.saveRandomTokenQuery(userId, token);
+  }
+
+  static invalidateResetTokenQuery(target, isToken = false) {
+    return DBClass.invalidateResetTokenQuery(target, isToken);
+  }
 }
 
 module.exports = UserClass;

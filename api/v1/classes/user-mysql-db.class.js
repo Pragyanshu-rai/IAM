@@ -274,7 +274,7 @@ class DBClass {
    * @param {*} isToken 
    * @returns 
    */
-  static ifTokenExists(target, isToken = false) {
+  static ifTokenExistsQuery(target, isToken = false) {
     let query;
 
     if (isToken) {
@@ -302,7 +302,7 @@ class DBClass {
    * @param {*} token 
    * @returns 
    */
-  static saveRandomToken(userId, token) {
+  static saveRandomTokenQuery(userId, token) {
     const saveToken = `
     INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_expiration, isValid)
     VALUE (
@@ -327,7 +327,7 @@ class DBClass {
    * @param {*} isToken 
    * @returns 
    */
-  static invalidateResetToken(target, isToken = false) {
+  static invalidateResetTokenQuery(target, isToken = false) {
     var invalidateToken = `
     UPDATE PasswordResetRequest
     SET isValid = 0
