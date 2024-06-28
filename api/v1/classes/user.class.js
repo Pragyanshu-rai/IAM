@@ -146,6 +146,13 @@ class UserClass {
     return DBClass.saveRandomTokenQuery(userId, token);
   }
 
+  /**
+   * This method when invoked will return the query to invalidate
+   * the token against the user
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
   static invalidateResetTokenQuery(target, isToken = false) {
     return DBClass.invalidateResetTokenQuery(target, isToken);
   }
