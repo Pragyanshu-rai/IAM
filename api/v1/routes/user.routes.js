@@ -27,8 +27,14 @@ try {
     userController.updateUser
   );
   userRoutes.put(
-    '/update-password/:id/:forgot/:token',  
+    '/reset-password-request/:id/:forgot/:token', 
+    Security.screen,  
     userController.updatePassword
+  );
+  userRoutes.post(
+    '/update-password', 
+    Security.screen,  
+    userController.resetRequest
   );
   userRoutes.get(
     '/users', 

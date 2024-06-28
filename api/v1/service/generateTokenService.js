@@ -1,11 +1,10 @@
 const UserModel = require("../models/user.model");
 
+const loginService = require("../service/loginService");
 const sendResetEmail = require("../utils/network/mail/sendCodeEmail");
-const createRSAToken = require("../utils/security/token/createRSAToken");
 const getSecureString = require("../utils/security/cipher/randomSecure");
 
 const LOC = "Generate Token Service";
-const SECRET_KEY = process.env.JWT_KEY;
 
 /**
  * Given the req object, userId and the token this function will 
@@ -22,8 +21,8 @@ const generateLink = (req, userId, token) => {
 };
 
 /**
- * Given the req, and res object this function will generate a token
- * , register it against the user and will send out an email if the
+ * Given the req, and res object this function will generate a token, 
+ * register it against the user and will send out an email if the
  * userExists
  * @param {*} req 
  * @param {*} res 
@@ -32,6 +31,10 @@ const generateLink = (req, userId, token) => {
 module.exports = async (req, res) => {
 
   try {
+
+    if (req.userData != null && req.userData != undefined) {
+      return await loginService(req, res);
+    }
     const email = req.body.email;
     const token = getSecureString(25, true);
     const user = await UserModel.findByEmail(email);
@@ -39,20 +42,9 @@ module.exports = async (req, res) => {
     const resetURL = generateLink(req, user.id, token);
     const now = new Date();
     await sendResetEmail(email, user.first_name, resetURL, now.toUTCString());
-    const authToken = createRSAToken(
-      {
-        email: email,
-        data: user
-      },
-      SECRET_KEY,
-      {
-        expiresIn: '10m'
-      }
-    );
 
     return res.status(201).json({
-      message: "Email Sent Successfully!",
-      authToken: `Token ${authToken}`
+      message: "Email Sent Successfully!"
     });
   } catch (error) {
     error.loc = error.loc || LOC;

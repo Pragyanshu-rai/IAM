@@ -28,7 +28,6 @@ module.exports = async (req, res) => {
       if (registeredToken == null || registeredToken == undefined || registeredToken != token) {
         throw new Error("Invalid Token!");
       }
-      
     } else {
       const jwtToken = req.headers.authorization.split(" ")[1];
       const tokenData = verifyToken(jwtToken, SECRET_KEY);

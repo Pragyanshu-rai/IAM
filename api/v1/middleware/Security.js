@@ -40,6 +40,33 @@ module.exports = class {
   };
 
   /**
+   * This middleware is used to screen the req for and if need be it
+   * sends the request down for further authentication
+   * @param {*} req 
+   * @param {*} res 
+   * @param {*} next 
+   */
+  static screen = (req, res, next) => {
+
+    try {
+      const jwtToken = req.headers.authorization;
+
+      if (jwtToken != undefined && jwtToken != null) {
+        this.authenticate(req, res, next);
+      } 
+      next();
+    } catch (error) {
+      error.status = error.status || 401;
+      error.message = "Screening Failed!";
+
+      if (DEBUG) {
+        logError(error, LOC);
+      }
+      next(error);
+    }
+  };
+
+  /**
    * This method will extract the user data from the provided 
    * token
    * @param {*} jwtToken 

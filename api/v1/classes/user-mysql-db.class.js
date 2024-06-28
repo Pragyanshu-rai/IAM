@@ -239,7 +239,7 @@ class DBClass {
    */
   static createFetchUserByEmailQuery(email) {
     const fetchUserByEmail = `
-    SELECT u.id, u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.email, u.mobile, r.role_name
+    SELECT u.id, u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.mobile, r.role_name
     FROM User AS u
     INNER JOIN UserRoles AS ur
     on u.id = ur.user_id
