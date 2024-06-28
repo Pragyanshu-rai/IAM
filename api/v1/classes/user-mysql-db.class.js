@@ -266,6 +266,85 @@ class DBClass {
     `;
     return fetchUserAttributeByEmail;
   }
+
+  /**
+   * Given the id or the token with the flag set this function returns
+   * the query to fetch the token if any exists for that id or token
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static ifTokenExists(target, isToken = false) {
+    let query;
+
+    if (isToken) {
+      query = `
+        SELECT reset_token 
+        FROM PasswordResetRequest
+        WHERE reset_token = '${target}'
+        ;
+      `;
+    } else {
+      query = `
+      SELECT reset_token
+      FROM PasswordResetRequest
+      WHERE user_id = ${target}
+      ;
+      `;
+    }
+    return query;
+  }
+
+  /**
+   * Given the userId and the token this function will return the query
+   * to save the token against that particular user
+   * @param {*} target 
+   * @param {*} token 
+   * @returns 
+   */
+  static saveRandomToken(userId, token) {
+    const saveToken = `
+    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_expiration, isValid)
+    VALUE (
+    (
+      SELECT id
+      FROM User
+      WHERE id = ${userId}
+    ),
+    ${token},
+    NOW(),
+    1
+    );
+    `;
+
+    return saveToken;
+  }
+
+  /**
+   * Given the userId or the token with the flag marked this function
+   * will return a query that will invalidate the token
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static invalidateResetToken(target, isToken = false) {
+    var invalidateToken = `
+    UPDATE PasswordResetRequest
+    SET isValid = 0
+    `;
+
+    if (isToken) {
+      invalidateToken += `
+        WHERE reset_token = '${target}';
+      `;
+    } else {
+      invalidateToken += `
+        WHERE user_id = ${target};
+      `;
+    }
+
+    return invalidateToken;
+  }
 }
 
 module.exports = DBClass;

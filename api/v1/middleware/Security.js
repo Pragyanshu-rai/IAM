@@ -1,11 +1,13 @@
-const jwt = require("jsonwebtoken");
-
 const logError = require("../utils/errors/logError");
+const verifyToken = require("../utils/security/token/verifyToken");
 
 const SECRET_KEY = process.env.JWT_KEY;
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "MIDDLEWARE-Security";
 
+/**
+ * This class is used to authenticate and extract data from a jwt token.
+ */
 module.exports = class {
 
   /**
@@ -18,7 +20,7 @@ module.exports = class {
   static authenticate = (req, res, next) => {
     try {
       const jwtToken = req.headers.authorization.split(" ")[1];
-      const tokenData = jwt.verify(jwtToken, SECRET_KEY);
+      const tokenData = verifyToken(jwtToken, SECRET_KEY);
       req.userData = tokenData;
 
       if (req.headers["payload-authorization"] !== undefined) {
@@ -45,7 +47,7 @@ module.exports = class {
    */
   static extract = (jwtToken) => {
     try {
-      const tokenData = jwt.verify(jwtToken, SECRET_KEY);
+      const tokenData = verifyToken(jwtToken, SECRET_KEY);
       return tokenData;
     } catch (error) {
       error.status = error.status || 401;

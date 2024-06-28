@@ -2,9 +2,7 @@ const mysql = require("mysql2");
 
 const DEBUG = parseInt(process.env.IN_DEV);
 
-console.log(process.env.IAM_DB_NAME);
-
-const pool = mysql.createPool({
+const poolData = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   connectionLimit: process.env.DB_CONNECTION_LIMIT,
@@ -13,7 +11,11 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   multipleStatements: process.env.DB_ALLOW_MS,
   port: process.env.DB_PORT
-});
+};
+
+console.log("PoolData -", poolData);
+
+const pool = mysql.createPool(poolData);
 
 pool.getConnection((error, connection) => {
   if (error) {

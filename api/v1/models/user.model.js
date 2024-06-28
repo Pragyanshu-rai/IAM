@@ -322,6 +322,16 @@ class UserModel {
       throw error;
     }
   }
+
+  static ifTokenExists(target, isToken = false) {
+
+    if (isToken) {
+      
+    } else {
+
+    }
+    return false;
+  }
 }
 
 module.exports = UserModel;
