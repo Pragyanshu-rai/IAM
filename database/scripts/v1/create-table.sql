@@ -37,11 +37,12 @@ CREATE TABLE IF NOT EXISTS UserRoles (
   FOREIGN KEY (role_id) REFERENCES Roles (id)
 );
 
--- creating the user_system table
-CREATE TABLE IF NOT EXISTS UserSystem (
+-- creating the password_reset_request table
+CREATE TABLE IF NOT EXISTS PasswordResetRequest (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   user_id BIGINT UNSIGNED NOT NULL,
-  system_id BIGINT UNSIGNED NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES User (id) ON DELETE CASCADE,
-  FOREIGN KEY (system_id) REFERENCES User (id) ON DELETE CASCADE
+  reset_token VARCHAR(32770) NOT NULL,
+  reset_token_expiration DATETIME NOT NULL,
+  isValid BOOLEAN DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES User (id) ON DELETE CASCADE
 );

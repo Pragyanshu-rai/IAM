@@ -1,0 +1,23 @@
+FROM mysql:8
+
+ARG DB_NAME
+
+ARG USER_NAME
+
+ARG PASSWORD
+
+RUN mkdir -p /home/db
+
+WORKDIR /home/db
+
+RUN cd /home/db
+
+COPY ./database/ .
+
+RUN mysql -u ${USER_NAME} -D ${DB_NAME} --password=${PASSWORD} < scripts/v1/bootstrap.sql;
+
+RUN mysql -u ${USER_NAME} -D ${DB_NAME} --password=${PASSWORD} < scripts/v1/create-table.sql;
+
+RUN mysql -u ${USER_NAME} -D ${DB_NAME} --password=${PASSWORD} < scripts/v1/populate-database.sql;
+
+# CMD ["/etc/init.d/mysql", "start"]

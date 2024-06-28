@@ -1,0 +1,19 @@
+# base image
+FROM node:22-alpine3.18
+
+RUN mkdir -p /home/IAM
+
+WORKDIR /home/IAM
+
+COPY . /home/IAM
+
+RUN rm -rf ./node_modules
+
+RUN rm -f package-lock.json
+
+RUN cd /home/IAM
+
+RUN npm install
+
+# default command
+CMD ["npm", "start"];
