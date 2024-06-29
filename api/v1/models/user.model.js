@@ -66,7 +66,7 @@ class UserModel {
       const user = safeExtract(users);
 
       if (user === undefined) {
-        throw new Error();
+        throw new Error("User Not Found");
       }
       const passwordHashed = user.password_hashed;
       user["authStatus"] = await bcrypt.compare(password, passwordHashed);
@@ -78,7 +78,7 @@ class UserModel {
       user["role"] = role.role_name;
 
       if (!user.authStatus) {
-        throw new Error();
+        throw new Error("User Or Password invalid");
       }
       return user;
 

@@ -5,6 +5,7 @@ const sendResetEmail = require("../utils/network/mail/sendCodeEmail");
 const getSecureString = require("../utils/security/cipher/randomSecure");
 
 const LOC = "Generate Token Service";
+const DEBUG = parseInt(process.env.IN_DEV);
 
 /**
  * Given the req object, userId and the token this function will 
@@ -33,6 +34,7 @@ module.exports = async (req, res) => {
   try {
 
     if (req.userData != null && req.userData != undefined) {
+      req.body.email = req.userData.email;
       return await loginService(req, res);
     }
     const email = req.body.email;
@@ -44,7 +46,8 @@ module.exports = async (req, res) => {
     await sendResetEmail(email, user.first_name, resetURL, now.toUTCString());
 
     return res.status(201).json({
-      message: "Email Sent Successfully!"
+      message: "Email Sent Successfully!",
+      resetLink: resetURL
     });
   } catch (error) {
     error.loc = error.loc || LOC;
