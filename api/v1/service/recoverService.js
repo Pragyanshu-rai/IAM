@@ -1,10 +1,8 @@
 const UserModel = require("../models/user.model");
 
 const updatePasswordService = require("./updatePasswordService");
-const verifyToken = require("../utils/security/token/verifyToken");
 
 const LOC = "Recover Password Service";
-const SECRET_KEY = process.env.JWT_KEY;
 
 /**
  * This function will determine whether to updateThePasswordDirectly
