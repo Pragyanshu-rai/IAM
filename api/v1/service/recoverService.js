@@ -17,22 +17,26 @@ module.exports = async (req, res) => {
   try {
     const params = req.params;
 
-    if (params["forgot"]) {
+    if (params["forgot"].toLowerCase() === "true") {
       const userId = params["id"];
       const token = params["token"];
       req.userData = {
-        id: userId
+        data: {
+          id: userId
+        }
       };
       const registeredToken = await UserModel.ifTokenExists(token, true);
       
-      if (registeredToken == null || registeredToken == undefined || registeredToken != token) {
+      if (registeredToken == null || registeredToken == undefined || registeredToken.reset_token != token) {
         throw new Error("Invalid Token!");
       }
-    } else {
-      const jwtToken = req.headers.authorization.split(" ")[1];
-      const tokenData = verifyToken(jwtToken, SECRET_KEY);
-      req.userData = tokenData;
-    }
+      await UserModel.invalidateToken(userId);
+    } 
+    // else {
+    //   const jwtToken = req.headers.authorization.split(" ")[1];
+    //   const tokenData = verifyToken(jwtToken, SECRET_KEY);
+    //   req.userData = tokenData;
+    // }
     return await updatePasswordService(req, res);
   } catch (error) {
     error.loc = error.loc || LOC;

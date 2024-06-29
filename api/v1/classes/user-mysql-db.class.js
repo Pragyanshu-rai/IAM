@@ -282,7 +282,7 @@ class DBClass {
         SELECT reset_token 
         FROM PasswordResetRequest
         WHERE reset_token = '${target}'
-        AND isValid = 1
+        AND is_valid = 1
         ;
       `;
     } else {
@@ -290,7 +290,7 @@ class DBClass {
       SELECT reset_token
       FROM PasswordResetRequest
       WHERE user_id = ${target}
-      AND isValid = 1
+      AND is_valid = 1
       ;
       `;
     }
@@ -306,14 +306,14 @@ class DBClass {
    */
   static saveRandomTokenQuery(userId, token) {
     const saveToken = `
-    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_expiration, isValid)
+    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_creation, is_valid)
     VALUE (
     (
       SELECT id
       FROM User
       WHERE id = ${userId}
     ),
-    ${token},
+    '${token}',
     NOW(),
     1
     );
@@ -332,7 +332,7 @@ class DBClass {
   static invalidateResetTokenQuery(target, isToken = false) {
     var invalidateToken = `
     UPDATE PasswordResetRequest
-    SET isValid = 0
+    SET is_valid = 0
     `;
 
     if (isToken) {

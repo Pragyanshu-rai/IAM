@@ -1,5 +1,5 @@
 // utils
-const setError = require('../utils/errors/setError');
+const setError = require('../utils/error/setError');
 
 // services
 const testService = require('../service/testService');
@@ -9,7 +9,7 @@ const deleteService = require("../service/deleteService");
 const signUpService = require("../service/signupService");
 const updateService = require("../service/updateService");
 const recoverService = require("../service/recoverService");
-const generateTokenService = require('../service/generateTokenService');
+const resetRequestService = require('../service/resetRequestService');
 
 const LOC = "CONTROLLER";
 const ERROR_MESSAGE = "Internal Server Error";
@@ -69,7 +69,7 @@ exports.updateUser = async (req, res, next) => {
  * @param {*} next 
  * @returns 
  */
-exports.updatePassword = async (req, res, next) => {
+exports.resetPassword = async (req, res, next) => {
 
   try {
     return await recoverService(req, res);
@@ -84,10 +84,10 @@ exports.updatePassword = async (req, res, next) => {
  * @param {*} res 
  * @param {*} next 
  */
-exports.resetRequest = async (req, res, next) => {
+exports.initiateResetRequest = async (req, res, next) => {
 
   try {
-    return await generateTokenService(req, res);
+    return await resetRequestService(req, res);
   } catch (error) {
     next(setError(error, LOC, 500, ERROR_MESSAGE));
   }

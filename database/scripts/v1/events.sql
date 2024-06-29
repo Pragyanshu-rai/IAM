@@ -10,7 +10,7 @@ ENABLE
 COMMENT 'remove every token that is older than 10 minutes'
 DO
 BEGIN
-  IF IAM.PasswordResetRequest.isValid = 1 AND IAM.PasswordResetRequest.reset_token_expiration <= (NOW() - 500) THEN
+  IF IAM.PasswordResetRequest.isValid = 1 AND IAM.PasswordResetRequest.reset_token_creation <= (NOW() - 500) THEN
     UPDATE PasswordResetRequest
     SET isValid = 0
     WHERE reset_token_expiration <= (NOW() - 500);

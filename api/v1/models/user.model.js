@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 const db = require('../../../config/db');
 const UserClass = require('../classes/user.class');
-const safeExtract = require('../utils/arrays/safeExtract');
+const safeExtract = require('../utils/array/safeExtract');
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "DB MODEL";
@@ -11,6 +11,12 @@ class UserModel {
 
   constructor(user) {
     this.user = new UserClass(user);
+  }
+
+  // static user functions
+
+  static fullName(user) {
+    return (new UserClass(user)).fullName;
   }
 
   /**

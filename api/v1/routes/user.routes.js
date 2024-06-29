@@ -29,12 +29,12 @@ try {
   userRoutes.put(
     '/reset-password-request/:id/:forgot/:token', 
     Security.screen,  
-    userController.updatePassword
+    userController.resetPassword
   );
   userRoutes.post(
     '/update-password', 
     Security.screen,  
-    userController.resetRequest
+    userController.initiateResetRequest
   );
   userRoutes.get(
     '/users', 

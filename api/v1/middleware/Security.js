@@ -1,4 +1,4 @@
-const logError = require("../utils/errors/logError");
+const logError = require("../utils/error/logError");
 const verifyToken = require("../utils/security/token/verifyToken");
 
 const SECRET_KEY = process.env.JWT_KEY;
@@ -53,8 +53,9 @@ module.exports = class {
 
       if (jwtToken != undefined && jwtToken != null) {
         this.authenticate(req, res, next);
-      } 
-      next();
+      } else {
+        next();
+      }
     } catch (error) {
       error.status = error.status || 401;
       error.message = "Screening Failed!";

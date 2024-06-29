@@ -1,25 +1,12 @@
 const UserModel = require("../models/user.model");
 
-const loginService = require("../service/loginService");
+const capitalizeAll = require("../utils/string/capitalizeAll");
+const generateLink = require("../utils/network/url/generateURL");
 const sendResetEmail = require("../utils/network/mail/sendCodeEmail");
 const getSecureString = require("../utils/security/cipher/randomSecure");
 
 const LOC = "Generate Token Service";
 const DEBUG = parseInt(process.env.IN_DEV);
-
-/**
- * Given the req object, userId and the token this function will 
- * generate a dynamic link with the provided token
- * @param {*} req 
- * @param {*} userId 
- * @param {*} token 
- * @returns url
- */
-const generateLink = (req, userId, token) => {
-  const resetURL = `${req.protocol}://${req.get("host")}/user/reset-password-request/${userId}/true/${token}`;
-
-  return resetURL;
-};
 
 /**
  * Given the req, and res object this function will generate a token, 
@@ -32,18 +19,23 @@ const generateLink = (req, userId, token) => {
 module.exports = async (req, res) => {
 
   try {
-
-    if (req.userData != null && req.userData != undefined) {
-      req.body.email = req.userData.email;
-      return await loginService(req, res);
-    }
     const email = req.body.email;
+
+    // generate the random secure string of length 25 bytes
     const token = getSecureString(25, true);
-    const user = await UserModel.findByEmail(email);
-    await UserModel.saveRandomToken(user.id, token);
-    const resetURL = generateLink(req, user.id, token);
+
+    // find the user and save the randomToken
+    const userData = await UserModel.findByEmail(email);
+
+    // throw an error if the user is not registered
+    if (userData == undefined || userData == null) {
+      throw new Error("User Not Found");
+    }
+    await UserModel.saveRandomToken(userData.id, token);
+    const resetURL = generateLink(req, userData.id, token);
     const now = new Date();
-    await sendResetEmail(email, user.first_name, resetURL, now.toUTCString());
+    const fullName = UserModel.fullName(userData);
+    await sendResetEmail(email, capitalizeAll(fullName), resetURL, now.toUTCString());
 
     return res.status(201).json({
       message: "Email Sent Successfully!",
