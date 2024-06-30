@@ -1,8 +1,8 @@
+const logger = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
-const logger = require("morgan");
 
-const userRoutes = require("./api/v1/routes/user.routes");
+const allRoutes = require("./api/v1/utils/rules/version/v1.config");
 const logError = require("./api/v1/utils/error/logError");
 
 const LOC = "APP";
@@ -15,7 +15,9 @@ app.use(bodyParser.json());
 app.use(logger(logMode));
 
 //  application url paths
-app.use("/v1/user", userRoutes);
+for (const module of allRoutes) {
+  app.use(module.basePath, module.router);
+}
 
 // if all the above handlers are not able to handle the request
 app.use((req, res, next) => {

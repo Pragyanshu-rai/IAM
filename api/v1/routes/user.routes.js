@@ -22,7 +22,7 @@ try {
     userController.userLogin
   );
   userRoutes.patch(
-    '/update', 
+    '/update-user', 
     Security.authenticate, 
     userController.updateUser
   );
@@ -32,7 +32,7 @@ try {
     userController.resetPassword
   );
   userRoutes.post(
-    '/update-password', 
+    '/update', 
     Security.screen,  
     userController.initiateResetRequest
   );
