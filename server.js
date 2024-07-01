@@ -5,8 +5,8 @@ require("dotenv").config({
 
 const http = require("http");
 const app = require("./app");
+const allRoutes = require("./global/version/v1.config");
 const printRoutes = require("./global/utils/printRoutes");
-const allRoutes = require("./api/v1/utils/rules/version/v1.config");
 
 const app_port = process.env.APP_PORT || 8081;
 const server = http.createServer(app);

@@ -1,4 +1,4 @@
-const userRoutes = require("../../../routes/user.routes");
+const userRoutes = require("../../api/v1/routes/user.routes");
 
 const PORT = process.env.APP_PORT;
 
@@ -11,6 +11,6 @@ module.exports = [
     protocol: "http",
     host: "localhost",
     router: userRoutes,
-    basePath: "/v1/user",
+    basePath: "/api/v1/user",
   }
 ];

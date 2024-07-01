@@ -2,7 +2,7 @@ const logger = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
 
-const allRoutes = require("./api/v1/utils/rules/version/v1.config");
+const allRoutes = require("./global/version/v1.config");
 const logError = require("./api/v1/utils/error/logError");
 
 const LOC = "APP";
