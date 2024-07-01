@@ -239,7 +239,7 @@ class DBClass {
    */
   static createFetchUserByEmailQuery(email) {
     const fetchUserByEmail = `
-    SELECT u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.email, u.mobile, r.role_name
+    SELECT u.id, u.first_name, u.middle_name, u.last_name, u.date_of_birth, u.gender, u.mobile, r.role_name
     FROM User AS u
     INNER JOIN UserRoles AS ur
     on u.id = ur.user_id
@@ -274,7 +274,7 @@ class DBClass {
    * @param {*} isToken 
    * @returns 
    */
-  static ifTokenExists(target, isToken = false) {
+  static ifTokenExistsQuery(target, isToken = false) {
     let query;
 
     if (isToken) {
@@ -282,6 +282,7 @@ class DBClass {
         SELECT reset_token 
         FROM PasswordResetRequest
         WHERE reset_token = '${target}'
+        AND is_valid = 1
         ;
       `;
     } else {
@@ -289,6 +290,7 @@ class DBClass {
       SELECT reset_token
       FROM PasswordResetRequest
       WHERE user_id = ${target}
+      AND is_valid = 1
       ;
       `;
     }
@@ -302,16 +304,16 @@ class DBClass {
    * @param {*} token 
    * @returns 
    */
-  static saveRandomToken(userId, token) {
+  static saveRandomTokenQuery(userId, token) {
     const saveToken = `
-    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_expiration, isValid)
+    INSERT INTO PasswordResetRequest (user_id, reset_token, reset_token_creation, is_valid)
     VALUE (
     (
       SELECT id
       FROM User
       WHERE id = ${userId}
     ),
-    ${token},
+    '${token}',
     NOW(),
     1
     );
@@ -327,10 +329,10 @@ class DBClass {
    * @param {*} isToken 
    * @returns 
    */
-  static invalidateResetToken(target, isToken = false) {
+  static invalidateResetTokenQuery(target, isToken = false) {
     var invalidateToken = `
     UPDATE PasswordResetRequest
-    SET isValid = 0
+    SET is_valid = 0
     `;
 
     if (isToken) {

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 const db = require('../../../config/db');
 const UserClass = require('../classes/user.class');
-const safeExtract = require('../utils/arrays/safeExtract');
+const safeExtract = require('../utils/array/safeExtract');
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "DB MODEL";
@@ -11,6 +11,12 @@ class UserModel {
 
   constructor(user) {
     this.user = new UserClass(user);
+  }
+
+  // static user functions
+
+  static fullName(user) {
+    return (new UserClass(user)).fullName;
   }
 
   /**
@@ -66,7 +72,7 @@ class UserModel {
       const user = safeExtract(users);
 
       if (user === undefined) {
-        throw new Error();
+        throw new Error("User Not Found");
       }
       const passwordHashed = user.password_hashed;
       user["authStatus"] = await bcrypt.compare(password, passwordHashed);
@@ -78,7 +84,7 @@ class UserModel {
       user["role"] = role.role_name;
 
       if (!user.authStatus) {
-        throw new Error();
+        throw new Error("User Or Password invalid");
       }
       return user;
 
@@ -175,10 +181,8 @@ class UserModel {
    */
   static async findByEmail(email) {
     const findQuery = UserClass.createFetchUserByEmailQuery(email);
-    console.log("Query", findQuery);
     const [users, _] = await UserModel.safeExecute(findQuery);
     const user = safeExtract(users);
-    console.log('Check', users);
     return user;
   }
 
@@ -323,14 +327,71 @@ class UserModel {
     }
   }
 
-  static ifTokenExists(target, isToken = false) {
+  /**
+   * Given the userId or the token with the flag marked this function
+   * returns the token if it exists else returns undefined
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static async ifTokenExists(target, isToken = false) {
+    const checkToken = UserClass.ifTokenExistsQuery(target, isToken);
+    const [token, _] = await db.execute(checkToken);
+    return safeExtract(token); 
+  }
 
-    if (isToken) {
-      
-    } else {
+  /**
+   * Given the userId or the token with the flag marked this function
+   * returns the token if it exists else throws an error
+   * @param {*} target 
+   * @param {*} isToken 
+   * @returns 
+   */
+  static async ifTokenExistsOrError(target, isToken = false) {
+    let checkToken;
+    try {
+      checkToken = await UserModel.ifTokenExists(target, isToken);
 
+      if (!checkToken) {
+        const error = new Error("Token Does Not Exist!");
+        throw error;
+      }
+    } catch (error) {
+      error.loc = error.loc || LOC;
+      error.status = error.status || 403;
+      const defaultMessage = "Permission Denied!";
+
+      if (DEBUG) {
+        error.message = (error.message !== undefined && error.message !== "") ? error.message : defaultMessage;
+      } else {
+        error.message = defaultMessage;
+      }
+      throw error;
+    } finally {
+      return !(checkToken);
     }
-    return false;
+  }
+
+  /**
+   * Given the userId and the token this function registers the 
+   * token against the user
+   * @param {*} userId 
+   * @param {*} token 
+   */
+  static async saveRandomToken(userId, token) {
+    const saveTokenQuery = UserClass.saveRandomTokenQuery(userId, token);
+    await db.execute(saveTokenQuery);
+  }
+
+  /**
+   * Given the userId or the token with the flag marked this function
+   * invalidates the token if it exists
+   * @param {*} target 
+   * @param {*} isToken 
+   */
+  static async invalidateToken(target, isToken = false) {
+    const invalidateTokenQuery = UserClass.invalidateResetTokenQuery(target, isToken);
+    await db.execute(invalidateTokenQuery);
   }
 }
 

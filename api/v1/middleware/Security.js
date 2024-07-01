@@ -1,4 +1,4 @@
-const logError = require("../utils/errors/logError");
+const logError = require("../utils/error/logError");
 const verifyToken = require("../utils/security/token/verifyToken");
 
 const SECRET_KEY = process.env.JWT_KEY;
@@ -31,6 +31,34 @@ module.exports = class {
     } catch (error) {
       error.status = error.status || 401;
       error.message = "Authentication Failed!";
+
+      if (DEBUG) {
+        logError(error, LOC);
+      }
+      next(error);
+    }
+  };
+
+  /**
+   * This middleware is used to screen the req for and if need be it
+   * sends the request down for further authentication
+   * @param {*} req 
+   * @param {*} res 
+   * @param {*} next 
+   */
+  static screen = (req, res, next) => {
+
+    try {
+      const jwtToken = req.headers.authorization;
+
+      if (jwtToken != undefined && jwtToken != null) {
+        this.authenticate(req, res, next);
+      } else {
+        next();
+      }
+    } catch (error) {
+      error.status = error.status || 401;
+      error.message = "Screening Failed!";
 
       if (DEBUG) {
         logError(error, LOC);

@@ -5,13 +5,13 @@ require("dotenv").config({
 
 const http = require("http");
 const app = require("./app");
-const { printRoutes } = require("./utils/routes/printRoutes");
+const allRoutes = require("./global/version/v1.config");
+const printRoutes = require("./global/utils/printRoutes");
 
 const app_port = process.env.APP_PORT || 8081;
 const server = http.createServer(app);
 
-console.log("Listing All the endpoints...\n");
-app._router.stack.forEach(printRoutes.bind(null, []));
-console.log("\nDone");
+// printing all the registered routes
+printRoutes(allRoutes);
 
 server.listen(app_port, () => console.log(`Listening on port ${app_port}`));

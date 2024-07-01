@@ -22,14 +22,19 @@ try {
     userController.userLogin
   );
   userRoutes.patch(
-    '/update', 
+    '/update-user', 
     Security.authenticate, 
     userController.updateUser
   );
   userRoutes.put(
-    '/update-password', 
-    Security.authenticate, 
-    userController.updatePassword
+    '/reset-password-request/:id/:forgot/:token', 
+    Security.screen,  
+    userController.resetPassword
+  );
+  userRoutes.post(
+    '/update', 
+    Security.screen,  
+    userController.initiateResetRequest
   );
   userRoutes.get(
     '/users', 

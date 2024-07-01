@@ -1,4 +1,4 @@
-const logError = require("../utils/errors/logError");
+const logError = require("../utils/error/logError");
 
 const DEBUG = parseInt(process.env.IN_DEV);
 const LOC = "MIDDLEWARE-Data Mask";
