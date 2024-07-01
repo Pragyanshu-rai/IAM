@@ -1,9 +1,9 @@
+const logger = require("morgan");
 const express = require("express");
 const bodyParser = require("body-parser");
-const logger = require("morgan");
 
-const userRoutes = require("./api/v1/routes/user.routes");
-const logError = require("./api/v1/utils/errors/logError");
+const allRoutes = require("./global/version/v1.config");
+const logError = require("./api/v1/utils/error/logError");
 
 const LOC = "APP";
 const app = express();
@@ -15,7 +15,9 @@ app.use(bodyParser.json());
 app.use(logger(logMode));
 
 //  application url paths
-app.use("/v1/user", userRoutes);
+for (const module of allRoutes) {
+  app.use(module.basePath, module.router);
+}
 
 // if all the above handlers are not able to handle the request
 app.use((req, res, next) => {
@@ -27,10 +29,15 @@ app.use((req, res, next) => {
 // Global error handler
 app.use((error, req, res, next) => {
   error.loc = error.loc || LOC;
-  error.message =
+  
+  if(DEBUG) {
+    error.message =
     error.message !== undefined ? error.message : "Something went wrong!";
-
-  res.status(error.status || 500).json({
+  } else {
+    error.message = "Something went wrong!";
+  }
+    
+    res.status(error.status || 500).json({
     message: error.message,
   });
 
